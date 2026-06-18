@@ -24,6 +24,13 @@ class PendaftaranController extends Controller
             return redirect()->route('mahasiswa.dashboard')->with('info', 'Anda sudah mendaftar.');
         }
 
+        // ===== CEK QUOTA =====
+        if (Pendaftaran::isQuotaFull()) {
+            return redirect()->route('mahasiswa.dashboard')
+                ->with('error', 'Kuota pendaftaran penuh. Batas: ' . Pendaftaran::QUOTA_LIMIT . ' mahasiswa.');
+        }
+        // ===== AKHIR =====
+
         $provinsis = Provinsi::orderBy('nama')->get();
         return view('mahasiswa.pendaftaran.create', compact('provinsis'));
     }
@@ -35,6 +42,14 @@ class PendaftaranController extends Controller
         if (Auth::user()->pendaftaran) {
             return redirect()->route('mahasiswa.dashboard');
         }
+
+        // ===== CEK QUOTA =====
+        if (Pendaftaran::isQuotaFull()) {
+            return redirect()->back()
+                ->with('error', 'Kuota sudah penuh. Tidak bisa melanjutkan.')
+                ->withInput();
+        }
+        // ===== AKHIR =====
 
         $request->validate([
             'nama_lengkap'    => 'required|string|max:255',

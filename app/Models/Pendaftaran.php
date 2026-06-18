@@ -32,4 +32,16 @@ class Pendaftaran extends Model
     {
         return $this->belongsTo(Kabupaten::class);
     }
+
+    const QUOTA_LIMIT = 4;
+
+    public static function isQuotaFull()
+    {
+        return self::count() >= self::QUOTA_LIMIT;
+    }
+
+    public static function getRemainingQuota()
+    {
+        return max(0, self::QUOTA_LIMIT - self::count());
+    }
 }
